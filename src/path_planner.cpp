@@ -68,12 +68,12 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
         ++it;
     }
 
-    // Vehicle rVehicle;
-    // if (ego.get_vehicle_behind(ego.get_lane(ego.d), predictions, rVehicle)) {
+    Vehicle rVehicle;
+    if (ego.get_vehicle_behind(ego.get_lane(), predictions, rVehicle)) {
         
-    //     cout << "Vehicle Found Ahead" << endl;
-    //     cout << "s= " << rVehicle.s << endl;
-    // }
+        cout << "Vehicle Found Ahead" << endl;
+        cout << "s= " << rVehicle.s << endl;
+    }
 
     vector<double> anchor_pts_x;
     vector<double> anchor_pts_y;

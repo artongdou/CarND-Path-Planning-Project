@@ -16,6 +16,7 @@ public:
     Vehicle();
     Vehicle(int id);
     Vehicle(int id, double x, double y, double yaw, double s, double d, double vx, double vy);
+    int get_lane();
     int get_lane(double d);
     Vehicle generate_predictions(double dt);
     bool get_vehicle_ahead(int lane, std::vector<Vehicle> &predictions, Vehicle &rVehicle);

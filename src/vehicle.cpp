@@ -27,6 +27,11 @@ Vehicle::Vehicle(int id, double x, double y, double yaw, double s, double d, dou
 }
 
 #define LANE_WIDTH 4
+
+int Vehicle::get_lane() {
+    return get_lane(this->d);
+}
+
 int Vehicle::get_lane(double d)
 {
     return floor(d / LANE_WIDTH);
