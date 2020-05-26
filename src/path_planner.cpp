@@ -54,6 +54,19 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
                                       std::vector<double> &next_x_vals,
                                       std::vector<double> &next_y_vals)
 {
+    vector<Vehicle> predictions;
+
+    Vehicle::iterator it = this->cars.begin();
+
+    // Gneerate predictions for all the cars on the road
+    double dt = 0.02*50; // 1 second
+    while (it != this->cars.end())
+    {
+        int v_id = it->first;
+        predictions.push_back(it->generate_predictions(dt));
+        ++it;
+    }
+
     vector<double> anchor_pts_x;
     vector<double> anchor_pts_y;
 
@@ -63,7 +76,7 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
     {
         target_speed += 0.02 * max_accel;
     }
-    cout << target_speed << endl;
+    // cout << target_speed << endl;
 
     double ref_x;
     double ref_y;
@@ -94,6 +107,8 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
             anchor_pts_y.push_back(previous_path_y[prev_path_size - i]);
         }
     }
+
+    ego.choose_next_state();
 
     vector<double> next_anchor0 = getXY(ego.s + 30, 2 + target_lane * 4, map_waypoints_s,
                                         map_waypoints_x,

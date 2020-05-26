@@ -87,6 +87,7 @@ int main()
 
           // Ego car localization Data
           Vehicle ego = Vehicle(9999, j[1]["x"], j[1]["y"], j[1]["yaw"], j[1]["s"], j[1]["d"], j[1]["speed"], 0);
+          ego.state = "KL";
 
           // Path Planner Data
           PathPlanner planner = PathPlanner(j[1]["previous_path_x"], 
