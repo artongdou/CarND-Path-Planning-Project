@@ -3,6 +3,7 @@
 #include "helpers.h"
 #include "math.h"
 #include <iostream>
+#include "vehicle.h"
 
 using std::cout;
 using std::endl;
@@ -56,23 +57,23 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
 {
     vector<Vehicle> predictions;
 
-    Vehicle::iterator it = this->cars.begin();
+    vector<Vehicle>::iterator it = this->cars.begin();
 
     // Gneerate predictions for all the cars on the road
     double dt = 0.02*50; // 1 second
     while (it != this->cars.end())
     {
-        int v_id = it->first;
+        int v_id = it->id;
         predictions.push_back(it->generate_predictions(dt));
         ++it;
     }
 
-    Vehicle rVehicle;
-    if (get_vehicle_ahead(ego.get_lane(ego->d), predictions, rVehicle)) {
+    // Vehicle rVehicle;
+    // if (ego.get_vehicle_behind(ego.get_lane(ego.d), predictions, rVehicle)) {
         
-        cout << "Vehicle Found Ahead" << endl;
-        cout << "s= " << rVehicle.s << endl;
-    }
+    //     cout << "Vehicle Found Ahead" << endl;
+    //     cout << "s= " << rVehicle.s << endl;
+    // }
 
     vector<double> anchor_pts_x;
     vector<double> anchor_pts_y;
@@ -115,7 +116,7 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
         }
     }
 
-    ego.choose_next_state();
+    // ego.choose_next_state();
 
     vector<double> next_anchor0 = getXY(ego.s + 30, 2 + target_lane * 4, map_waypoints_s,
                                         map_waypoints_x,

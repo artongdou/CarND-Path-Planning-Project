@@ -1,7 +1,10 @@
 #include "vehicle.h"
 
 #include "math.h"
+#include <iostream>
 
+using std::cout;
+using std::endl;
 using std::string;
 using std::vector;
 
@@ -44,8 +47,7 @@ Vehicle Vehicle::generate_predictions(double dt)
 
 bool Vehicle::get_vehicle_ahead(int lane, vector<Vehicle> &predictions, Vehicle &rVehicle)
 {
-    Vehicle::iterator it = predictions.begin();
-    Vehicle temp_vehicle;
+    vector<Vehicle>::iterator it = predictions.begin();
     bool vehicle_found = false;
     double max_s = 9999;
     while (it != predictions.end()) {
@@ -54,7 +56,7 @@ bool Vehicle::get_vehicle_ahead(int lane, vector<Vehicle> &predictions, Vehicle 
             vehicle_found = true;
             
             if (fabs(dist) < max_s) {
-                temp_vehicle = *it;
+                rVehicle = *it;
                 max_s = dist;
             }
         }
@@ -65,8 +67,7 @@ bool Vehicle::get_vehicle_ahead(int lane, vector<Vehicle> &predictions, Vehicle 
 
 bool Vehicle::get_vehicle_behind(int lane, vector<Vehicle> &predictions, Vehicle &rVehicle)
 {
-    Vehicle::iterator it = predictions.begin();
-    Vehicle temp_vehicle;
+    vector<Vehicle>::iterator it = predictions.begin();
     bool vehicle_found = false;
     double max_s = 9999;
     while (it != predictions.end()) {
@@ -75,36 +76,37 @@ bool Vehicle::get_vehicle_behind(int lane, vector<Vehicle> &predictions, Vehicle
             vehicle_found = true;
             
             if (fabs(dist) < max_s) {
-                temp_vehicle = *it;
+                rVehicle = *it;
                 max_s = dist;
             }
         }
         ++it;
     }
     return vehicle_found;
+}
 
 Vehicle Vehicle::choose_next_state(vector<Vehicle> &predictions)
 {
-    vector<string> states = successor_states();
-    float cost;
-    vector<float> costs;
-    vector<vector<Vehicle>> final_trajectories;
+    // vector<string> states = successor_states();
+    // float cost;
+    // vector<float> costs;
+    // vector<vector<Vehicle>> final_trajectories;
 
-    for (vector<string>::iterator it = states.begin(); it != states.end(); ++it)
-    {
-        vector<Vehicle> trajectory = generate_trajectory(*it, predictions);
-        if (trajectory.size() != 0)
-        {
-            cost = calculate_cost(*this, predictions, trajectory);
-            costs.push_back(cost);
-            final_trajectories.push_back(trajectory);
-        }
-    }
+    // for (vector<string>::iterator it = states.begin(); it != states.end(); ++it)
+    // {
+    //     vector<Vehicle> trajectory = generate_trajectory(*it, predictions);
+    //     if (trajectory.size() != 0)
+    //     {
+    //         cost = calculate_cost(*this, predictions, trajectory);
+    //         costs.push_back(cost);
+    //         final_trajectories.push_back(trajectory);
+    //     }
+    // }
 
-    vector<float>::iterator best_cost = min_element(begin(costs), end(costs));
-    int best_idx = distance(begin(costs), best_cost);
+    // vector<float>::iterator best_cost = min_element(begin(costs), end(costs));
+    // int best_idx = distance(begin(costs), best_cost);
 
-    return final_trajectories[best_idx];
+    // return final_trajectories[best_idx];
 }
 
 vector<string> Vehicle::successor_states()
