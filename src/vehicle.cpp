@@ -24,14 +24,10 @@ Vehicle::Vehicle(int id, double x, double y, double yaw, double s, double d, dou
 }
 
 #define LANE_WIDTH 4
-int Vehicle::get_lane()
+int Vehicle::get_lane(double d)
 {
     return floor(d / LANE_WIDTH);
 }
-
-// double Vehicle::calculate_cost()
-// {
-// }
 
 Vehicle Vehicle::generate_predictions(double dt)
 {
@@ -46,50 +42,46 @@ Vehicle Vehicle::generate_predictions(double dt)
     return pred;
 }
 
-Vehicle Vehicle::keep_lane_trajectory()
-{
-    
-}
-
-bool Vehicle::get_vehicle_in_front(int lane, vector<Vehicle> &predictions, Vehicle &veh_in_front)
+bool Vehicle::get_vehicle_ahead(int lane, vector<Vehicle> &predictions, Vehicle &rVehicle)
 {
     Vehicle::iterator it = predictions.begin();
-    bool vehicle_in_front = false;
-    double dist_to_vehicle_in_front = 9999;
+    Vehicle temp_vehicle;
+    bool vehicle_found = false;
+    double max_s = 9999;
     while (it != predictions.end()) {
         double dist = it->s - this->s;
-        if (lane == it->get_lane() && dist < 0) {
-            vehicle_in_front = true;
+        if (lane == it->get_lane(this->d) && dist < 0) {
+            vehicle_found = true;
             
-            if (fabs(dist) < dist_to_vehicle_in_front) {
-                veh_in_front = *it;
-                dist_to_vehicle_in_front = dist;
+            if (fabs(dist) < max_s) {
+                temp_vehicle = *it;
+                max_s = dist;
             }
         }
         ++it;
     }
-    return vehicle_in_front;
+    return vehicle_found;
 }
 
-bool Vehicle::get_vehicle_behind(int lane, vector<Vehicle> &predictions, Vehicle &veh_behind)
+bool Vehicle::get_vehicle_behind(int lane, vector<Vehicle> &predictions, Vehicle &rVehicle)
 {
     Vehicle::iterator it = predictions.begin();
-    bool vehicle_behind = false;
-    double dist_to_vehicle_behind = 9999;
+    Vehicle temp_vehicle;
+    bool vehicle_found = false;
+    double max_s = 9999;
     while (it != predictions.end()) {
-        double dist = this->s - it->s;
-        if (lane == it->get_lane() && dist > 0) {
-            vehicle_behind = true;
+        double dist = it->s - this->s;
+        if (lane == it->get_lane(this->d) && dist > 0) {
+            vehicle_found = true;
             
-            if (fabs(dist) < dist_to_vehicle_behind) {
-                veh_behind = *it;
-                dist_to_vehicle_behind = dist;
+            if (fabs(dist) < max_s) {
+                temp_vehicle = *it;
+                max_s = dist;
             }
         }
         ++it;
     }
-    return vehicle_behind;
-}
+    return vehicle_found;
 
 Vehicle Vehicle::choose_next_state(vector<Vehicle> &predictions)
 {
@@ -130,7 +122,7 @@ vector<string> Vehicle::successor_states()
     }
     else if (state.compare("PLCL") == 0)
     {
-        if (get_lane() != 2)
+        if (get_lane(this->d) != 2)
         {
             states.push_back("PLCL");
             states.push_back("LCL");
@@ -138,7 +130,7 @@ vector<string> Vehicle::successor_states()
     }
     else if (state.compare("PLCR") == 0)
     {
-        if (get_lane() != 0)
+        if (get_lane(this->d) != 0)
         {
             states.push_back("PLCR");
             states.push_back("LCR");

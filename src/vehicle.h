@@ -16,8 +16,11 @@ public:
     Vehicle();
     Vehicle(int id);
     Vehicle(int id, double x, double y, double yaw, double s, double d, double vx, double vy);
-    Vehicle generate_predictions(double dt);
     int get_lane();
+    Vehicle generate_predictions(double dt);
+    bool get_vehicle_ahead(int lane, vector<Vehicle> &predictions, Vehicle &rVehicle);
+    bool get_vehicle_behind(int lane, vector<Vehicle> &predictions, Vehicle &rVehicle);
+    Vehicle choose_next_state(vector<Vehicle> &predictions);
     std::vector<std::string> successor_states();
 };
 
