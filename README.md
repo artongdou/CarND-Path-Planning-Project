@@ -6,7 +6,7 @@ Ego vehicle is able to navigate through the highway without violating any limita
 
 ![alt text](./demo/path_planning_screenshot.png)
 
-![Alt Text](https://github.com/artongdou/CarND-Kidnapped-Vehicle-Project/blob/master/demo/particle_filter_demo.gif)
+![Alt Text](https://github.com/artongdou/CarND-Path-Planning-Project/tree/master/demo/path_planning_video.gif)
 
 ### How It Works
 
