@@ -94,6 +94,7 @@ int main() {
               j[1]["end_path_s"], j[1]["end_path_d"], j[1]["sensor_fusion"],
               map_waypoints_x, map_waypoints_y, map_waypoints_s);
 
+          // Generate the next trajectgory that will be used by the simulator
           planner.generate_trajectory(ego, next_x_vals, next_y_vals);
 
           msgJson["next_x"] = next_x_vals;

@@ -8,8 +8,6 @@
 class PathPlanner {
   static double target_speed;
   int target_lane;
-  double max_accel;
-  double max_decel;
 
  public:
   std::vector<double> previous_path_x;

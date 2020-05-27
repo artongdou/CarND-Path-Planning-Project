@@ -38,21 +38,20 @@ PathPlanner::PathPlanner(vector<double> previous_path_x,
     car.id = (int)ith_car[0];
     car.x = ith_car[1];
     car.y = ith_car[2];
-    car.v = (sqrt(ith_car[3] * ith_car[3] + ith_car[4] * ith_car[4]));
+    car.v =
+        (sqrt(ith_car[3] * ith_car[3] +
+              ith_car[4] * ith_car[4]));  // sensor fusion return speed in m/s
     car.s = ith_car[5];
     car.d = ith_car[6];
     cars.push_back(car);
     cout << "id = " << car.id << " d = " << car.d << " lane= " << car.get_lane()
          << " s = " << car.s << " v = " << car.v << endl;
   }
-
-  max_accel = 9;
-  max_decel = 9;
 }
 
-void PathPlanner::generate_trajectory(Vehicle &ego,
-                                      std::vector<double> &next_x_vals,
-                                      std::vector<double> &next_y_vals) {
+void PathPlanner::generate_trajectory(Vehicle& ego,
+                                      std::vector<double>& next_x_vals,
+                                      std::vector<double>& next_y_vals) {
   vector<Vehicle> predictions;
 
   vector<Vehicle>::iterator it = this->cars.begin();

@@ -40,5 +40,6 @@ double lane_change_cost(std::vector<Vehicle> &trajectory,
 
 #define SPEED_LIMIT (mph2mps(49))
 #define MAX_JERK (7)
+#define LANE_WIDTH (4)
 
 #endif

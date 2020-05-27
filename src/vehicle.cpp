@@ -27,15 +27,16 @@ Vehicle::Vehicle(int id, double x, double y, double yaw, double s, double d,
   this->v = v;
 }
 
-#define LANE_WIDTH 4
-
 int Vehicle::get_lane() { return get_lane(this->d); }
 
 int Vehicle::get_lane(double d) { return floor(d / LANE_WIDTH); }
 
+/**
+ * Function to generate prediction of the vehicle after time dt.
+ * It assumes vehicle moves at constant speed.
+ * @param dt - time horizon in seconds
+ */
 Vehicle Vehicle::generate_predictions(double dt) {
-  // Generates predictions for non-ego vehicles to be used in trajectory
-  //   generation for the ego vehicle.
   Vehicle pred = *this;
   pred.s = this->s + this->v * dt;  // Assume constant speed
   return pred;
@@ -204,10 +205,10 @@ vector<Vehicle> Vehicle::lane_change_trajectory(string state,
 
   if (state == "LCL") {
     new_lane -= 1;
-    self_pred.d -= 4;
+    self_pred.d -= LANE_WIDTH;
   } else if (state == "LCR") {
     new_lane += 1;
-    self_pred.d += 4;
+    self_pred.d += LANE_WIDTH;
   }
 
   if (get_vehicle_ahead(new_lane, predictions, vehicle_ahead)) {
