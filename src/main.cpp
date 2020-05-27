@@ -20,6 +20,7 @@ using std::vector;
 
 // function declaration from helpers.h
 string hasData(string s);
+double mph2mps(double x);
 
 int main()
 {
@@ -86,7 +87,7 @@ int main()
           // j[1] is the data JSON object
 
           // Ego car localization Data
-          Vehicle ego = Vehicle(9999, j[1]["x"], j[1]["y"], j[1]["yaw"], j[1]["s"], j[1]["d"], j[1]["speed"], 0);
+          Vehicle ego = Vehicle(9999, j[1]["x"], j[1]["y"], j[1]["yaw"], j[1]["s"], j[1]["d"], mph2mps(j[1]["speed"]));
           ego.state = "KL";
 
           // Path Planner Data

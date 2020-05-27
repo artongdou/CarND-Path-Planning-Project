@@ -39,18 +39,20 @@ PathPlanner::PathPlanner(vector<double> previous_path_x,
         car.id = (int)ith_car[0];
         car.x = ith_car[1];
         car.y = ith_car[2];
-        car.vx = mph2mps(ith_car[3]);
-        car.vy = mph2mps(ith_car[4]);
+        car.v = mph2mps(sqrt(ith_car[3]*ith_car[3] + ith_car[4]*ith_car[4]));
         car.s = ith_car[5];
         car.d = ith_car[6];
         cars.push_back(car);
+        cout << "id = " << car.id << endl;
+        cout << "d = " << car.d << "lane= " << car.get_lane() << endl;
+        cout << "s = " << car.s << endl;
+        cout << "v = " << car.v << endl;
     }
 
     max_accel = 9;
     max_decel = 9;
 }
 
-#define SPEED_LIMIT (mph2mps(49))
 void PathPlanner::generate_trajectory(Vehicle &ego,
                                       std::vector<double> &next_x_vals,
                                       std::vector<double> &next_y_vals)
@@ -68,23 +70,31 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
         ++it;
     }
 
-    Vehicle rVehicle;
-    if (ego.get_vehicle_behind(ego.get_lane(), predictions, rVehicle)) {
+    cout << "ego s= " << ego.s << "ego d= " << ego.d << endl;
+    Vehicle new_trajectory = ego.choose_next_state(predictions);
+    cout << "New trajectory target speed: " << new_trajectory.v << endl;
+    cout << "New trajectory target lane: " << new_trajectory.get_lane() << endl;
+
+    // Vehicle rVehicle;
+    // if (ego.get_vehicle_behind(ego.get_lane(), predictions, rVehicle)) {
         
-        cout << "Vehicle Found Ahead" << endl;
-        cout << "s= " << rVehicle.s << endl;
-    }
+    //     cout << "Vehicle Found Ahead" << endl;
+    //     cout << "s= " << rVehicle.s << endl;
+    // }
 
     vector<double> anchor_pts_x;
     vector<double> anchor_pts_y;
 
     target_lane = 1;
+    target_speed = new_trajectory.v;
+    
 
-    if (target_speed < SPEED_LIMIT)
-    {
-        target_speed += 0.02 * max_accel;
-    }
+    // if (target_speed < SPEED_LIMIT)
+    // {
+    //     target_speed += 0.02 * max_accel;
+    // }
     // cout << target_speed << endl;
+    cout << "target speed: " << target_speed << endl;
 
     double ref_x;
     double ref_y;
