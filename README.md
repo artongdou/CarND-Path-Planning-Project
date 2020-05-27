@@ -4,7 +4,7 @@ Self-Driving Car Engineer Nanodegree Program
 ### Demo
 Ego vehicle is able to navigate through the highway without violating any limitations for 7 miles at close to speed limit (50mph) most of the time, unless there is traffic in front or make lane change.
 
-![alt text](https://github.com/artongdou/CarND-Path-Planning-Project/tree/master/demo/path_planning_video.gif)
+![alt text](https://github.com/artongdou/CarND-Path-Planning-Project/blob/master/demo/path_planning_video.gif)
 
 ### How It Works
 
