@@ -1,7 +1,28 @@
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
+
+### Performance
+Ego vehicle is able to navigate through the highway without violating any limitations for 7 miles at close to speed limit (50mph) most of the time, unless there is traffic in front or make lane change.
+![alt text](./screenshots/path_planning_screenshot.png)
+
+### How It Works
+
+#### Behavior Planning
+The core logic for planning the behavior of the vehicle is implemented in `costs.cpp` and `vehicle.cpp`. To keep it simple, a finite state machine that has only 3 states, `Keep Lane`, `Lane Change Left` and `Lane Change Right` is considered sufficient for this project. 
+
+For every timestep, the behavior planner will calculate the cost for each possible successor state. 3 cost functions are implemented:
+1. Speed cost (Weight = 2)
+
+<img src="https://latex.codecogs.com/svg.latex?Speed&space;Cost&space;=&space;\left\{\begin{matrix}&space;1,&space;v>&space;50mph\\&space;1-e^{-\left&space;|&space;50-v&space;\right&space;|},&space;v\leq&space;50mph&space;\end{matrix}\right." title="Speed Cost = \left\{\begin{matrix} 1, v> 50mph\\ 1-e^{-\left | 50-v \right |}, v\leq 50mph \end{matrix}\right." /></a>
+
+2. Lane change cost (Weight = 1)
+3. Safe distance cost (Weight = 3)
+The highest weight is assigned to safe distance because we want to avoid collision at all cost. 
+
+#### Path Generation
+
    
-### Simulator.
+### Simulator
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2).  
 
 To run the simulator on Mac/Linux, first make the binary file executable with the following command:
