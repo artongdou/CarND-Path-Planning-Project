@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+#include "helpers.h"
+#include "math.h"
+
 class Vehicle {
  public:
   int id;

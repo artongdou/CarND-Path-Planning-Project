@@ -2,19 +2,30 @@
 
 #include <iostream>
 
-#include "helpers.h"
-#include "math.h"
-#include "spline.h"
-#include "vehicle.h"
-
 using std::cout;
 using std::endl;
 using std::vector;
 
+// Initial speed is 0 at staring location
 double PathPlanner::target_speed = 0;
 
+/**
+ * Constructor
+ */
 PathPlanner::PathPlanner() {}
 
+/**
+ * Constructor. Initialize with all the feedback from simulator and restructure
+ * sensor fusion data.
+ * @param previous_path_x
+ * @param previous_path_y
+ * @param end_path_s
+ * @param end_path_d
+ * @param sensor_fusion
+ * @param may_waypoints_x
+ * @param may_waypoints_y
+ * @param may_waypoints_s
+ */
 PathPlanner::PathPlanner(vector<double> previous_path_x,
                          vector<double> previous_path_y, double end_path_s,
                          double end_path_d,
@@ -49,51 +60,39 @@ PathPlanner::PathPlanner(vector<double> previous_path_x,
   }
 }
 
-void PathPlanner::generate_trajectory(Vehicle& ego,
-                                      std::vector<double>& next_x_vals,
-                                      std::vector<double>& next_y_vals) {
+/**
+ * This function generate the trajectory in the next 50 points that will be used
+ * to determine the vehicle location in the simulator.
+ * @param - a Vehicle object represents that ego vehicle
+ * @param next_x_vals - return x coordinates in the path (50 points)
+ * @param next_y_vals - return y coordinates in the path (50 points)
+ */
+void PathPlanner::generate_trajectory(Vehicle &ego,
+                                      std::vector<double> &next_x_vals,
+                                      std::vector<double> &next_y_vals) {
   vector<Vehicle> predictions;
 
   vector<Vehicle>::iterator it = this->cars.begin();
 
   // Gneerate predictions for all the cars on the road
-  double dt = 0.02 * 50;  // 1 second
+  double dt = 1.0;  // 1 second
   while (it != this->cars.end()) {
     int v_id = it->id;
     predictions.push_back(it->generate_predictions(dt));
     ++it;
   }
 
-  cout << "ego s= " << ego.s << "ego d= " << ego.d << endl;
+  // Generate the next trajectory
   vector<Vehicle> new_trajectory = ego.choose_next_state(predictions);
-  cout << "New trajectory target speed: " << new_trajectory[1].v << endl;
-  cout << "New trajectory target lane: " << new_trajectory[1].get_lane()
-       << endl;
-
-  // Vehicle rVehicle;
-  // if (ego.get_vehicle_behind(ego.get_lane(), predictions, rVehicle)) {
-
-  //     cout << "Vehicle Found Ahead" << endl;
-  //     cout << "s= " << rVehicle.s << endl;
-  // }
 
   vector<double> anchor_pts_x;
   vector<double> anchor_pts_y;
 
   target_lane = new_trajectory[1].get_lane();
-  // target_speed = new_trajectory.v;
-
-  // if (target_speed < SPEED_LIMIT)
-  // {
-  //     target_speed += 0.02 * max_accel;
-  // }
-  // cout << target_speed << endl;
-  cout << "target speed: " << target_speed << endl;
 
   double ref_x;
   double ref_y;
   double ref_yaw;
-  double ref_speed;
 
   // use the previous path as starting points
   int prev_path_size = previous_path_x.size();
@@ -107,7 +106,6 @@ void PathPlanner::generate_trajectory(Vehicle& ego,
     anchor_pts_y.push_back(ref_y - sin(ref_yaw));
     anchor_pts_x.push_back(ref_x);
     anchor_pts_y.push_back(ref_y);
-    // ref_speed = ego.v;
   } else {
     ref_x = previous_path_x[prev_path_size - 1];
     ref_y = previous_path_y[prev_path_size - 1];
@@ -116,10 +114,7 @@ void PathPlanner::generate_trajectory(Vehicle& ego,
       anchor_pts_x.push_back(previous_path_x[prev_path_size - i]);
       anchor_pts_y.push_back(previous_path_y[prev_path_size - i]);
     }
-    // ref_speed = (previous_path_x[prev_path_size])
   }
-
-  // ego.choose_next_state();
 
   vector<double> next_anchor0 =
       getXY(ego.s + 60, 2 + target_lane * 4, map_waypoints_s, map_waypoints_x,

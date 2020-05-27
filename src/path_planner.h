@@ -3,6 +3,9 @@
 
 #include <vector>
 
+#include "helpers.h"
+#include "math.h"
+#include "spline.h"
 #include "vehicle.h"
 
 class PathPlanner {

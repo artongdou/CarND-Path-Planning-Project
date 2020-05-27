@@ -7,7 +7,7 @@
 
 #include "Eigen-3.3/Eigen/Core"
 #include "Eigen-3.3/Eigen/QR"
-// #include "helpers.h"
+#include "helpers.h"
 #include "json.hpp"
 #include "path_planner.h"
 #include "spline.h"
@@ -19,10 +19,6 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
-
-// function declaration from helpers.h
-string hasData(string s);
-double mph2mps(double x);
 
 int main() {
   uWS::Hub h;
