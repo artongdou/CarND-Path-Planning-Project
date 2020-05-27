@@ -10,17 +10,54 @@ Ego vehicle is able to navigate through the highway without violating any limita
 #### Behavior Planning
 The core logic for planning the behavior of the vehicle is implemented in `costs.cpp` and `vehicle.cpp`. To keep it simple, a finite state machine that has only 3 states, `Keep Lane`, `Lane Change Left` and `Lane Change Right` is considered sufficient for this project. 
 
-For every timestep, the behavior planner will calculate the cost for each possible successor state. 3 cost functions are implemented:
+For every timestep, the behavior planner will calculate the cost for each possible successor state. 3 cost functions are implemented and the weighted sum of them will be the total cost.
+
 1. Speed cost (Weight = 2)
 
-<img src="https://latex.codecogs.com/svg.latex?Speed&space;Cost&space;=&space;\left\{\begin{matrix}&space;1,&space;v>&space;50mph\\&space;1-e^{-\left&space;|&space;50-v&space;\right&space;|},&space;v\leq&space;50mph&space;\end{matrix}\right." title="Speed Cost = \left\{\begin{matrix} 1, v> 50mph\\ 1-e^{-\left | 50-v \right |}, v\leq 50mph \end{matrix}\right." /></a>
+<p align="center">
+<img src="https://latex.codecogs.com/svg.latex?Speed&space;Cost&space;=&space;\left\{\begin{matrix}&space;1,&space;v>&space;50mph\\&space;1-e^{-\left&space;|&space;50-v&space;\right&space;|},&space;v\leq&space;50mph&space;\end{matrix}\right." title="Speed Cost = \left\{\begin{matrix} 1, v> 50mph\\ 1-e^{-\left | 50-v \right |}, v\leq 50mph \end{matrix}\right." />
+</p>
 
 2. Lane change cost (Weight = 1)
+
+<p align="center">
+<img src="https://latex.codecogs.com/svg.latex?Lane&space;Change&space;Cost=1-e^{-\left&space;|&space;d_{initial}&space;-&space;d_{final}&space;\right&space;|}" title="Lane Change Cost=1-e^{-\left | d_{initial} - d_{final} \right |}" />
+</p>
+
 3. Safe distance cost (Weight = 3)
 The highest weight is assigned to safe distance because we want to avoid collision at all cost. 
 
-#### Path Generation
+<p align="center">
+<img src="https://latex.codecogs.com/svg.latex?min\_dist&space;=&space;min(\left&space;|&space;s_{vehicle\_ahead}&space;-&space;s_{ego}&space;\right&space;|,&space;\left&space;|&space;s_{vehicle\_behind}&space;-&space;s_{ego}&space;\right&space;|)" title="min\_dist = min(\left | s_{vehicle\_ahead} - s_{ego} \right |, \left | s_{vehicle\_behind} - s_{ego} \right |)" />
+<img src="https://latex.codecogs.com/svg.latex?SafeDistanceCost&space;=&space;e^{-max(0,&space;min\_dist&space;-&space;UNSAFE\_DIST))}" title="SafeDistanceCost = e^{-max(0, min\_dist - UNSAFE\_DIST))}" />
+</p>
 
+#### Path Generation
+This project makes use of the [spline library](https://kluge.in-chemnitz.de/opensource/spline/) to generate a smooth trajectory for the simulator to follow. For each iteration, 5 anchor points are chosen to generate the next path. In order to generate a continuous smooth path, the last 2 points from the previous will always be reused if possible, and 3 new points are added based on the new trajectory provided by the behavior planner.
+
+Since there is limitation on total acceleration, a sudden lane change would not be desired. Therefore, the new anchor points are further spaced out at `60m`, `90m` and `120m` ahead in order to create a smoother trajectory. 
+
+``` cpp
+vector<double> next_anchor0 =
+    getXY(ego.s + 60, 2 + target_lane * 4, map_waypoints_s, map_waypoints_x,
+          map_waypoints_y);
+vector<double> next_anchor1 =
+    getXY(ego.s + 90, 2 + target_lane * 4, map_waypoints_s, map_waypoints_x,
+          map_waypoints_y);
+vector<double> next_anchor2 =
+    getXY(ego.s + 120, 2 + target_lane * 4, map_waypoints_s, map_waypoints_x,
+          map_waypoints_y);
+```
+
+Once the spline trajectory is generated, correct points need to be sampled to achieve desired speed within the `MAX_JERK` defined in the software. Therefore it's important to set the `target_speed` in a manner that it's within the physical limit. `target_speed` will then be used to determine the `x` coordinate of the next point in the path. `y` coordinate then can be calculated from the generated spline.
+
+``` cpp
+if (new_trajectory[1].v > target_speed) {
+  target_speed = fmin(target_speed + MAX_JERK * 0.02, new_trajectory[1].v);
+} else if (new_trajectory[1].v < target_speed) {
+  target_speed = fmax(target_speed - MAX_JERK * 0.02, new_trajectory[1].v);
+}
+```
    
 ### Simulator
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2).  
