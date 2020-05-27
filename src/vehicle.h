@@ -21,11 +21,18 @@ public:
     Vehicle generate_predictions(double dt);
     bool get_vehicle_ahead(int lane, std::vector<Vehicle> &predictions, Vehicle &rVehicle);
     bool get_vehicle_behind(int lane, std::vector<Vehicle> &predictions, Vehicle &rVehicle);
-    Vehicle choose_next_state(std::vector<Vehicle> &predictions);
+    std::vector<Vehicle> choose_next_state(std::vector<Vehicle> &predictions);
     std::vector<std::string> successor_states();
-    Vehicle keep_lane_trajectory(std::vector<Vehicle> &preditions);
+    std::vector<Vehicle> keep_lane_trajectory(std::vector<Vehicle> &preditions);
+    std::vector<Vehicle> lane_change_trajectory(std::string state, std::vector<Vehicle> &predictions);
 };
 
+double calculate_cost(std::vector<Vehicle> &trajectory, std::vector<Vehicle> &predictions);
+double speed_cost(std::vector<Vehicle> &trajectory, std::vector<Vehicle> &predictions);
+double safe_distance_cost(std::vector<Vehicle> &trajectory, std::vector<Vehicle> &predictions);
+double lane_change_cost(std::vector<Vehicle> &trajectory, std::vector<Vehicle> &predictions);
+
 #define SPEED_LIMIT (mph2mps(49))
+#define MAX_JERK (7)
 
 #endif

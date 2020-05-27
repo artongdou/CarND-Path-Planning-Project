@@ -39,14 +39,11 @@ PathPlanner::PathPlanner(vector<double> previous_path_x,
         car.id = (int)ith_car[0];
         car.x = ith_car[1];
         car.y = ith_car[2];
-        car.v = mph2mps(sqrt(ith_car[3]*ith_car[3] + ith_car[4]*ith_car[4]));
+        car.v = (sqrt(ith_car[3] * ith_car[3] + ith_car[4] * ith_car[4]));
         car.s = ith_car[5];
         car.d = ith_car[6];
         cars.push_back(car);
-        cout << "id = " << car.id << endl;
-        cout << "d = " << car.d << "lane= " << car.get_lane() << endl;
-        cout << "s = " << car.s << endl;
-        cout << "v = " << car.v << endl;
+        cout << "id = " << car.id << " d = " << car.d << " lane= " << car.get_lane() << " s = " << car.s << " v = " << car.v << endl;
     }
 
     max_accel = 9;
@@ -62,7 +59,7 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
     vector<Vehicle>::iterator it = this->cars.begin();
 
     // Gneerate predictions for all the cars on the road
-    double dt = 0.02*50; // 1 second
+    double dt = 0.02 * 50; // 1 second
     while (it != this->cars.end())
     {
         int v_id = it->id;
@@ -71,13 +68,13 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
     }
 
     cout << "ego s= " << ego.s << "ego d= " << ego.d << endl;
-    Vehicle new_trajectory = ego.choose_next_state(predictions);
-    cout << "New trajectory target speed: " << new_trajectory.v << endl;
-    cout << "New trajectory target lane: " << new_trajectory.get_lane() << endl;
+    vector<Vehicle> new_trajectory = ego.choose_next_state(predictions);
+    cout << "New trajectory target speed: " << new_trajectory[1].v << endl;
+    cout << "New trajectory target lane: " << new_trajectory[1].get_lane() << endl;
 
     // Vehicle rVehicle;
     // if (ego.get_vehicle_behind(ego.get_lane(), predictions, rVehicle)) {
-        
+
     //     cout << "Vehicle Found Ahead" << endl;
     //     cout << "s= " << rVehicle.s << endl;
     // }
@@ -85,9 +82,8 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
     vector<double> anchor_pts_x;
     vector<double> anchor_pts_y;
 
-    target_lane = 1;
-    target_speed = new_trajectory.v;
-    
+    target_lane = new_trajectory[1].get_lane();
+    // target_speed = new_trajectory.v;
 
     // if (target_speed < SPEED_LIMIT)
     // {
@@ -99,6 +95,7 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
     double ref_x;
     double ref_y;
     double ref_yaw;
+    double ref_speed;
 
     // use the previous path as starting points
     int prev_path_size = previous_path_x.size();
@@ -113,6 +110,7 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
         anchor_pts_y.push_back(ref_y - sin(ref_yaw));
         anchor_pts_x.push_back(ref_x);
         anchor_pts_y.push_back(ref_y);
+        // ref_speed = ego.v;
     }
     else
     {
@@ -124,17 +122,18 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
             anchor_pts_x.push_back(previous_path_x[prev_path_size - i]);
             anchor_pts_y.push_back(previous_path_y[prev_path_size - i]);
         }
+        // ref_speed = (previous_path_x[prev_path_size])
     }
 
     // ego.choose_next_state();
 
-    vector<double> next_anchor0 = getXY(ego.s + 30, 2 + target_lane * 4, map_waypoints_s,
+    vector<double> next_anchor0 = getXY(ego.s + 60, 2 + target_lane * 4, map_waypoints_s,
                                         map_waypoints_x,
                                         map_waypoints_y);
-    vector<double> next_anchor1 = getXY(ego.s + 60, 2 + target_lane * 4, map_waypoints_s,
+    vector<double> next_anchor1 = getXY(ego.s + 90, 2 + target_lane * 4, map_waypoints_s,
                                         map_waypoints_x,
                                         map_waypoints_y);
-    vector<double> next_anchor2 = getXY(ego.s + 90, 2 + target_lane * 4, map_waypoints_s,
+    vector<double> next_anchor2 = getXY(ego.s + 120, 2 + target_lane * 4, map_waypoints_s,
                                         map_waypoints_x,
                                         map_waypoints_y);
 
@@ -170,10 +169,18 @@ void PathPlanner::generate_trajectory(Vehicle &ego,
     double target_dist = sqrt(target_x * target_x + target_y * target_y);
     double x_add_on = 0;
 
+
     for (int i = 0; i < 50 - prev_path_size; ++i)
     {
 
-        // cout << current_speed << endl;
+        if (new_trajectory[1].v > target_speed)
+        {
+            target_speed = fmin(target_speed + MAX_JERK * 0.02, new_trajectory[1].v);
+        }
+        else if (new_trajectory[1].v < target_speed)
+        {
+            target_speed = fmax(target_speed - MAX_JERK * 0.02, new_trajectory[1].v);
+        }
 
         double N = target_dist / (0.02 * target_speed);
         // cout << "N= " << N << endl;
