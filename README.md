@@ -30,7 +30,9 @@ The highest weight is assigned to safe distance because we want to avoid collisi
 
 <p align="center">
 <img src="https://latex.codecogs.com/svg.latex?min\_dist&space;=&space;min(\left&space;|&space;s_{vehicle\_ahead}&space;-&space;s_{ego}&space;\right&space;|,&space;\left&space;|&space;s_{vehicle\_behind}&space;-&space;s_{ego}&space;\right&space;|)" title="min\_dist = min(\left | s_{vehicle\_ahead} - s_{ego} \right |, \left | s_{vehicle\_behind} - s_{ego} \right |)" />
+</p>
 
+<p align="center">
 <img src="https://latex.codecogs.com/svg.latex?SafeDistanceCost&space;=&space;e^{-max(0,&space;min\_dist&space;-&space;UNSAFE\_DIST))}" title="SafeDistanceCost = e^{-max(0, min\_dist - UNSAFE\_DIST))}" />
 </p>
 
