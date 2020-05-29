@@ -29,6 +29,9 @@ int main() {
   vector<double> map_waypoints_s;
   vector<double> map_waypoints_dx;
   vector<double> map_waypoints_dy;
+  Vehicle ego = Vehicle();
+  ego.state = "KL";
+  ego.current_lane = 1;
 
   // Waypoint map to read from
   string map_file_ = "../data/highway_map.csv";
@@ -59,9 +62,9 @@ int main() {
   }
 
   h.onMessage([&map_waypoints_x, &map_waypoints_y, &map_waypoints_s,
-               &map_waypoints_dx,
-               &map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data,
-                                  size_t length, uWS::OpCode opCode) {
+               &map_waypoints_dx, &map_waypoints_dy,
+               &ego](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+                     uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -80,9 +83,8 @@ int main() {
           // j[1] is the data JSON object
 
           // Ego car localization Data
-          Vehicle ego = Vehicle(9999, j[1]["x"], j[1]["y"], j[1]["yaw"],
-                                j[1]["s"], j[1]["d"], mph2mps(j[1]["speed"]));
-          ego.state = "KL";
+          ego.init(9999, j[1]["x"], j[1]["y"], j[1]["yaw"], j[1]["s"],
+                   j[1]["d"], mph2mps(j[1]["speed"]));
 
           // Path Planner Data
           PathPlanner planner = PathPlanner(

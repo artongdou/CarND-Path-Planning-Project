@@ -55,8 +55,9 @@ PathPlanner::PathPlanner(vector<double> previous_path_x,
     car.s = ith_car[5];
     car.d = ith_car[6];
     cars.push_back(car);
-    cout << "id = " << car.id << " d = " << car.d << " lane= " << car.get_lane()
-         << " s = " << car.s << " v = " << car.v << endl;
+    // cout << "id = " << car.id << " d = " << car.d << " lane= " <<
+    // car.get_lane()
+    //  << " s = " << car.s << " v = " << car.v << endl;
   }
 }
 

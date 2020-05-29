@@ -1,13 +1,17 @@
 #include "costs.h"
 
+#include <iostream>
+
+using std::cout;
+using std::endl;
 using std::vector;
 
 // Cost functions weights configuration
-#define SPEED_WEIGHT 2
-#define DIST_WEIGHT 3
-#define LANE_CHANGE_WEIGHT 1
+#define SPEED_WEIGHT 15
+#define DIST_WEIGHT 40
+#define LANE_CHANGE_WEIGHT 4
 
-#define UNSAFE_DIST (30)
+#define UNSAFE_DIST (10)
 
 /**
  * Function calculate costs based on given trajectory at {t=0, t=1}
@@ -39,13 +43,17 @@ double calculate_cost(vector<Vehicle> &trajectory,
  * @return speed cost
  */
 double speed_cost(vector<Vehicle> &trajectory, vector<Vehicle> &predictions) {
+  double cost;
   if (trajectory[1].v > SPEED_LIMIT) {
-    return 1;  // max cost
+    cost = 1;  // max cost
   } else {
     double diff_d = fabs(trajectory[0].d - trajectory[1].d);
-    double diff_v = fabs(SPEED_LIMIT - trajectory[1].v);
-    return (1 - exp(-diff_v));
+    double diff_v = fabs(SPEED_LIMIT - trajectory[1].v) / 4;
+    cost = (1 - exp(-diff_v));
   }
+  cout << "      "
+       << "speed cost= " << cost << endl;
+  return cost;
 }
 
 /**
@@ -59,16 +67,19 @@ double speed_cost(vector<Vehicle> &trajectory, vector<Vehicle> &predictions) {
 double lane_change_cost(vector<Vehicle> &trajectory,
                         vector<Vehicle> &predictions) {
   double diff_d = fabs(trajectory[0].d - trajectory[1].d);
-  return (1 - exp(-diff_d));
+  double cost = 1 - exp(-diff_d);
+  cout << "      "
+       << "lane change cost= " << cost << endl;
+  return cost;
 }
 
 /**
- * Function calculate safe distance cost. It panaelizes trajectory that puts the
+ * Function calculate safe distance cost. It panalizes trajectory that puts the
  * vehicle too close to other vehicles.
  * @param trajectory - vehicle trajectory at {t=0, t=1}
  * @param predictions - vector of all predicted vehicles detected in the
  * surroundings
- * @return speed cost
+ * @return safe distance cost
  */
 double safe_distance_cost(vector<Vehicle> &trajectory,
                           vector<Vehicle> &predictions) {
@@ -83,6 +94,15 @@ double safe_distance_cost(vector<Vehicle> &trajectory,
                                        veh_behind)) {
     dist_to_veh_behind = -veh_behind.s + trajectory[1].s;
   }
-  double min_dist = fmin(fabs(dist_to_veh_ahead), 2 * fabs(dist_to_veh_behind));
-  return exp(-fmax(min_dist - UNSAFE_DIST, 0));
+  double cost;
+  double min_dist = fmin(fabs(dist_to_veh_ahead), fabs(dist_to_veh_behind));
+  if (min_dist <= UNSAFE_DIST) {
+    cost = 1;
+  } else {
+    cost = exp(-(min_dist - UNSAFE_DIST) / 10);
+  }
+  cout << "dist to veh ahead: " << dist_to_veh_ahead << endl;
+  cout << "      "
+       << "distance cost= " << cost << endl;
+  return cost;
 }

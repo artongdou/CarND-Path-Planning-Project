@@ -14,10 +14,12 @@ class Vehicle {
   double s, d;
   double v;
   std::string state;
+  int current_lane;
 
   Vehicle();
   Vehicle(int id);
-  Vehicle(int id, double x, double y, double yaw, double s, double d, double v);
+  void init(int id, double x, double y, double yaw, double s, double d,
+            double v);
   int get_lane();
   int get_lane(double d);
   Vehicle generate_predictions(double dt);

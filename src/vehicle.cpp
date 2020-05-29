@@ -30,8 +30,8 @@ Vehicle::Vehicle(int id) { this->id = id; }
  * @param d - d in Frenet
  * @param v - vehicle speed
  */
-Vehicle::Vehicle(int id, double x, double y, double yaw, double s, double d,
-                 double v) {
+void Vehicle::init(int id, double x, double y, double yaw, double s, double d,
+                   double v) {
   this->x = x;
   this->y = y;
   this->yaw = yaw;
@@ -124,14 +124,31 @@ bool Vehicle::get_vehicle_behind(int lane, vector<Vehicle> &predictions,
  */
 vector<string> Vehicle::successor_states() {
   vector<string> states;
-  states.push_back("KL");
+  // states.push_back("KL");
   string state = this->state;
   if (state.compare("KL") == 0) {
+    states.push_back("KL");
     if (get_lane() != 2) {
       states.push_back("LCR");
     }
     if (get_lane() != 0) {
       states.push_back("LCL");
+    }
+  } else if (state.compare("LCL") == 0) {
+    if (fabs((2 + 4 * (current_lane - 1)) - d) < 0.2) {
+      // Lane change has finished
+      states.push_back("KL");
+      current_lane -= 1;
+    } else {
+      states.push_back("LCL");
+    }
+  } else {
+    if (fabs((2 + 4 * (current_lane + 1)) - d) < 0.2) {
+      // Lane change has finished
+      states.push_back("KL");
+      current_lane += 1;
+    } else {
+      states.push_back("LCR");
     }
   }
 
@@ -154,6 +171,7 @@ vector<Vehicle> Vehicle::choose_next_state(vector<Vehicle> &predictions) {
   vector<double> costs;
   vector<vector<Vehicle>> final_trajectories;
 
+  cout << "-----" << endl;
   for (vector<string>::iterator it = states.begin(); it != states.end(); ++it) {
     if (*it == "KL") {
       trajectory = keep_lane_trajectory(predictions);
@@ -163,11 +181,15 @@ vector<Vehicle> Vehicle::choose_next_state(vector<Vehicle> &predictions) {
     cost = calculate_cost(trajectory, predictions);
     costs.push_back(cost);
     final_trajectories.push_back(trajectory);
-    // cout << *it << " cost = " << cost << endl;
+    cout << *it << " cost = " << cost << endl;
   }
 
   int best_idx =
       distance(costs.begin(), min_element(costs.begin(), costs.end()));
+  cout << "****Best Trajectory*** " << states[best_idx] << endl;
+  cout << "current lane = " << current_lane << endl;
+
+  state = states[best_idx];
 
   return final_trajectories[best_idx];
 }
@@ -193,7 +215,10 @@ vector<Vehicle> Vehicle::keep_lane_trajectory(vector<Vehicle> &predictions) {
     // cout << "vehicle ahead speed: " << vehicle_ahead.v << endl;
     // cout << vehicle_ahead.s << endl;
     // cout << self_pred.s << endl;
-    if ((vehicle_ahead.s - self_pred.s) <= 20) {
+    if ((vehicle_ahead.s - self_pred.s) <= 12) {
+      // slow down to increase buffer from the vehicle ahead
+      self_pred.v = vehicle_ahead.v - 2;
+    } else if ((vehicle_ahead.s - self_pred.s) <= 20) {
       self_pred.v = vehicle_ahead.v;
     } else {
       self_pred.v = fmin(SPEED_LIMIT, v + dt * 9);
@@ -216,23 +241,31 @@ vector<Vehicle> Vehicle::keep_lane_trajectory(vector<Vehicle> &predictions) {
  */
 vector<Vehicle> Vehicle::lane_change_trajectory(string state,
                                                 vector<Vehicle> &predictions) {
-  int new_lane = get_lane();
+  // int new_lane = get_lane();
   Vehicle vehicle_ahead;
   double dt = 1.0;
+  int new_lane;
   Vehicle self_pred = generate_predictions(dt);  // predict itself in 1sec
   vector<Vehicle> trajectory;
   trajectory.push_back(*this);
 
   if (state == "LCL") {
-    new_lane -= 1;
-    self_pred.d -= LANE_WIDTH;
+    new_lane = current_lane - 1;
   } else if (state == "LCR") {
-    new_lane += 1;
-    self_pred.d += LANE_WIDTH;
+    new_lane = current_lane + 1;
+  }
+
+  self_pred.d = 4 * new_lane + 2;
+
+  // if vehicle in front is too close, return keep lane trajectory
+  if (get_vehicle_ahead(current_lane, predictions, vehicle_ahead)) {
+    if ((vehicle_ahead.s - self_pred.s) <= 10) {
+      return keep_lane_trajectory(predictions);
+    }
   }
 
   if (get_vehicle_ahead(new_lane, predictions, vehicle_ahead)) {
-    if ((vehicle_ahead.s - self_pred.s) <= 10) {
+    if ((vehicle_ahead.s - self_pred.s) <= 20) {
       self_pred.v = vehicle_ahead.v;
     } else {
       self_pred.v = fmin(SPEED_LIMIT - 2, v + dt * 9);
