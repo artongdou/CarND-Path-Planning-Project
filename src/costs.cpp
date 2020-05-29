@@ -99,7 +99,7 @@ double safe_distance_cost(vector<Vehicle> &trajectory,
   if (min_dist <= UNSAFE_DIST) {
     cost = 1;
   } else {
-    cost = exp(-(min_dist - UNSAFE_DIST) / 10);
+    cost = exp(-fabs(min_dist - UNSAFE_DIST) / 10);
   }
   cout << "dist to veh ahead: " << dist_to_veh_ahead << endl;
   cout << "      "

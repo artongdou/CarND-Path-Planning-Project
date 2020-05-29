@@ -13,19 +13,19 @@ The core logic for planning the behavior of the vehicle is implemented in `costs
 
 For every timestep, the behavior planner will calculate the cost for each possible successor state. 3 cost functions are implemented and the weighted sum of them will be the total cost.
 
-1. Speed cost (Weight = 2)
+1. Speed cost (Weight = 15)
 
 <p align="center">
-<img src="https://latex.codecogs.com/svg.latex?Speed&space;Cost&space;=&space;\left\{\begin{matrix}&space;1,&space;v>&space;50mph\\&space;1-e^{-\left&space;|&space;50-v&space;\right&space;|},&space;v\leq&space;50mph&space;\end{matrix}\right." title="Speed Cost = \left\{\begin{matrix} 1, v> 50mph\\ 1-e^{-\left | 50-v \right |}, v\leq 50mph \end{matrix}\right." />
+<img src="https://latex.codecogs.com/gif.latex?Speed&space;Cost&space;=&space;\left\{\begin{matrix}&space;1,&space;v>&space;50mph\\&space;1-e^{\frac{-\left&space;|&space;50-v&space;\right&space;|}{4}},&space;v\leq&space;50mph&space;\end{matrix}\right." title="Speed Cost = \left\{\begin{matrix} 1, v> 50mph\\ 1-e^{\frac{-\left | 50-v \right |}{4}}, v\leq 50mph \end{matrix}\right." />
 </p>
 
-2. Lane change cost (Weight = 1)
+2. Lane change cost (Weight = 4)
 
 <p align="center">
 <img src="https://latex.codecogs.com/svg.latex?Lane&space;Change&space;Cost=1-e^{-\left&space;|&space;d_{initial}&space;-&space;d_{final}&space;\right&space;|}" title="Lane Change Cost=1-e^{-\left | d_{initial} - d_{final} \right |}" />
 </p>
 
-3. Safe distance cost (Weight = 3)
+3. Safe distance cost (Weight = 40)
 The highest weight is assigned to safe distance because we want to avoid collision at all cost. 
 
 <p align="center">
@@ -33,7 +33,7 @@ The highest weight is assigned to safe distance because we want to avoid collisi
 </p>
 
 <p align="center">
-<img src="https://latex.codecogs.com/svg.latex?SafeDistanceCost&space;=&space;e^{-max(0,&space;min\_dist&space;-&space;UNSAFE\_DIST))}" title="SafeDistanceCost = e^{-max(0, min\_dist - UNSAFE\_DIST))}" />
+<img src="https://latex.codecogs.com/gif.latex?SafeDistanceCost&space;=&space;\left\{\begin{matrix}&space;1,&space;min\_dist\leq&space;UNSAFE\_DIST\\&space;e^{\frac{-\left&space;|&space;min\_dist-UNSAFE\_DIST&space;\right&space;|}{10}},&space;v\leq&space;50mph&space;\end{matrix}\right." title="SafeDistanceCost = \left\{\begin{matrix} 1, min\_dist\leq UNSAFE\_DIST\\ e^{\frac{-\left | min\_dist-UNSAFE\_DIST \right |}{10}}, v\leq 50mph \end{matrix}\right." />
 </p>
 
 #### Path Generation
