@@ -13,6 +13,8 @@ The core logic for planning the behavior of the vehicle is implemented in `costs
 
 For every timestep, the behavior planner will calculate the cost for each possible successor state. 3 cost functions are implemented and the weighted sum of them will be the total cost.
 
+Because lane change is not instanteneous, behavior planner is configured in a way that when `LCR` or `LCL` is entered, it will stay in that state until lange change is completed. Therefore, cost functions have been tuned to be on the conservative side to make sure there is enough space to make the lane change safely. 
+
 1. Speed cost (Weight = 15)
 
 <p align="center">
@@ -33,7 +35,7 @@ The highest weight is assigned to safe distance because we want to avoid collisi
 </p>
 
 <p align="center">
-<img src="https://latex.codecogs.com/gif.latex?SafeDistanceCost&space;=&space;\left\{\begin{matrix}&space;1,&space;min\_dist\leq&space;UNSAFE\_DIST\\&space;e^{\frac{-\left&space;|&space;min\_dist-UNSAFE\_DIST&space;\right&space;|}{10}},&space;v\leq&space;50mph&space;\end{matrix}\right." title="SafeDistanceCost = \left\{\begin{matrix} 1, min\_dist\leq UNSAFE\_DIST\\ e^{\frac{-\left | min\_dist-UNSAFE\_DIST \right |}{10}}, v\leq 50mph \end{matrix}\right." />
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;SafeDistanceCost&space;=&space;\left\{\begin{matrix}&space;1,&space;min\_dist\leq&space;UNSAFE\_DIST\\&space;e^{\frac{-\left&space;|&space;min\_dist-UNSAFE\_DIST&space;\right&space;|}{10}},&space;min\_dist>UNSAFE\_DIST&space;\end{matrix}\right." title="SafeDistanceCost = \left\{\begin{matrix} 1, min\_dist\leq UNSAFE\_DIST\\ e^{\frac{-\left | min\_dist-UNSAFE\_DIST \right |}{10}}, min\_dist>UNSAFE\_DIST \end{matrix}\right." />
 </p>
 
 #### Path Generation
