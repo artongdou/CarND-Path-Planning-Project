@@ -258,7 +258,8 @@ vector<Vehicle> Vehicle::lane_change_trajectory(string state,
   self_pred.d = 4 * new_lane + 2;
 
   // if vehicle in front is too close, return keep lane trajectory
-  if (get_vehicle_ahead(current_lane, predictions, vehicle_ahead)) {
+  if (state == "KL" &&
+      get_vehicle_ahead(current_lane, predictions, vehicle_ahead)) {
     if ((vehicle_ahead.s - self_pred.s) <= 10) {
       return keep_lane_trajectory(predictions);
     }
